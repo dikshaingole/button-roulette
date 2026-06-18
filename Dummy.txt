@@ -4,3 +4,6 @@
 4.git push
 5.Auto push with help of shell scripting
 6.Create Jenkins pipeline
+7.Jenkins File push on github repo
+8.pull Jenkins file to jenkin pipeline from GitHub repo
+8.

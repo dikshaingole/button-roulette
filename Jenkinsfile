@@ -10,7 +10,7 @@ stages {
 
             echo.
             echo ===== MAVEN VERSION =====
-            mvn -version
+            mvn --version
 
             echo.
             echo ===== NODE VERSION =====

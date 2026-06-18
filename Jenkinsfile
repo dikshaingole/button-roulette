@@ -24,6 +24,11 @@ stages {
             echo.
             echo ===== NPM VERSION =====
             npm -v
+			
+			echo.
+            echo ===== NPM VERSION =====
+			docker --version
+			
             '''
         }
     }

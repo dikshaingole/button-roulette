@@ -1,1 +1,6 @@
-Hello PKN
+1. required software installed
+2.git clone
+3.git repo created
+4.git push
+5.Auto push with help of shell scripting
+6.Create Jenkins pipeline

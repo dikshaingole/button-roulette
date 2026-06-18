@@ -7,30 +7,17 @@ tools{
 }
 
 stages {
-    stage('Check Installed Tools Versions') {
-        steps {
-            bat '''
-            echo ===== JAVA VERSION =====
-            java -version
-
-            echo.
-            echo ===== MAVEN VERSION =====
-            mvn --version
-
-            echo.
-            echo ===== NODE VERSION =====
-            node -v
-
-            echo.
-            echo ===== NPM VERSION =====
-            npm -v
-			
-			echo.
-            echo ===== NPM VERSION =====
-			docker --version
-            '''
-        }
-    }
+    stage('Environment Check') {
+			steps {
+				bat 'whoami'
+				bat 'java -version'
+				bat 'javac -version'
+				bat 'mvn -version'
+				bat 'docker --version'
+				bat 'docker version'
+				bat 'docker ps'
+			}
+		}
 }
 
 

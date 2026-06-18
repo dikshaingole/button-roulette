@@ -3,7 +3,8 @@
 3.git repo created
 4.git push
 5.Auto push with help of shell scripting
-6.Create Jenkins pipeline
-7.Jenkins File push on github repo
+6.Create Jenkins pipeline 
+7.Jenkins File push on github repo to check version
 8.pull Jenkins file to jenkin pipeline from GitHub repo
-8.
+9.For maven version checking used tool configuration
+10. used webhook

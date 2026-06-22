@@ -1,4 +1,19 @@
-target/
+# Git files
 .git
-.idea
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+
+# Logs
 *.log
+
+# Maven files
+.mvn/
+
+# Ignore everything inside target
+target/*
+
+# But keep the JAR file
+!target/*.jar

@@ -8,3 +8,7 @@
 8.pull Jenkins file to jenkin pipeline from GitHub repo
 9.For maven version checking used tool configuration
 10. used webhook
+11.Create docker file for frontend &backend
+12.Create a docker compose file and test frontend and backend on local machine using .
+
+

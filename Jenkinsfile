@@ -15,17 +15,17 @@ pipeline {
             }
         }
 
-        stage('Check Versions') {
-            steps {
-                bat '''
-                java -version
-                mvn -version
-                node -v
-                npm -v
-                docker --version
-                '''
-            }
-        }
+     stage('Environment Check') {
+			steps {
+				bat 'whoami'
+				bat 'java -version'
+				bat 'javac -version'
+				bat 'mvn -version'
+				bat 'docker --version'
+				bat 'docker version'
+				bat 'docker ps'
+			}
+		}
 
         stage('Build Backend') {
             steps {

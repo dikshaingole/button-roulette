@@ -27,38 +27,48 @@ pipeline {
 			} 
 		}
 
-        stage('Build Backend') {
-            steps {
-                dir('roulette-backend') {
-                    bat 'mvn clean package -DskipTests'
-                }
-            }
-        }
+        stage('Build Applications') {
+			parallel {
 
-        stage('Build Frontend') {
-            steps {
-                dir('roulette-frontend') {
-                    bat 'npm install'
-                    bat 'npm run build'
-                }
-            }
-        }
+				stage('Build Backend') {
+					steps {
+						dir('roulette-backend') {
+							bat 'mvn clean package -DskipTests'
+						}
+					}
+				}
 
-        stage('Build Backend Docker Image') {
-            steps {
-                dir('roulette-backend') {
-                    bat 'docker build -t dikshaingole/roulette-backend:latest .'
-                }
-            }
-        }
+				stage('Build Frontend') {
+					steps {
+						dir('roulette-frontend') {
+							bat 'npm install'
+							bat 'npm run build'
+						}
+					}
+				}
+			}
+		}
 
-        stage('Build Frontend Docker Image') {
-            steps {
-                dir('roulette-frontend') {
-                    bat 'docker build -t dikshaingole/roulette-frontend:latest .'
-                }
-            }
-        }
+        stage('Build Docker Images') {
+			parallel {
+
+				stage('Backend Image') {
+					steps {
+						dir('roulette-backend') {
+							bat 'docker build -t dikshaingole/roulette-backend:latest .'
+						}
+					}
+				}
+
+				stage('Frontend Image') {
+					steps {
+						dir('roulette-frontend') {
+							bat 'docker build -t dikshaingole/roulette-frontend:latest .'
+						}
+					}
+				}
+			}
+		}
 
         stage('Docker Login') {
             steps {

@@ -24,7 +24,7 @@ pipeline {
 				bat 'docker --version'
 				bat 'docker version'
 				bat 'docker ps'
-			}
+			} 
 		}
 
         stage('Build Backend') {
@@ -92,7 +92,7 @@ pipeline {
         success {
             echo 'Docker images pushed successfully.'
         }
-
+ 
         failure {
             echo 'Pipeline failed.'
         }

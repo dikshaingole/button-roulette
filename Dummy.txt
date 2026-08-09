@@ -1,0 +1,36 @@
+Actual Working branch : https://github.com/PranikNikose/button-roulette/tree/button-roulette-Pranik
+0. Developer Code Writes - 
+	Frontend - frmwrk: React, lang: Js , html,css,bbotstrap, build tool: NPM - package.json
+	Backend - frmwrk: Springboot, lang: java 21, build tools: maven -  pom.xml , application.properties / application.yaml
+	------------------python - build tool: PIP
+
+1. Required software installed - Done 
+	jenkis - CI/CD 
+	master -  sep VM 
+	slave - sep VM or cluster 
+	Master & Slave in single VM 
+
+2. git clone of Pranik repo - Done 
+
+3. git repo created on diksha github - Done 
+
+4. git push on diksha repo - Done 
+
+5. Autopush.bat with help of shell scripting - Done 
+
+6. Create Jenkins pipeline - jenkinsfile
+
+7. Jenkins File push on github repo to check version.
+
+8. pull Jenkins file to jenkins pipeline from GitHub repo.
+
+9. For maven version checking used tool configuration - jdk & maven
+
+10. used webhook
+
+11. Create docker file for frontend & backend
+
+12. Create a docker compose file and test frontend and backend on local machine using docker compose up -d.
+
+13. created terraform folder and files and then configured AWS.
+

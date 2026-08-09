@@ -1,0 +1,22 @@
+services:
+
+  frontend:
+    image: dikshaingole/roulette-frontend
+    container_name: roulette-frontend
+    expose:
+      - "80"
+
+  backend:
+    image: dikshaingole/roulette-backend
+    container_name: roulette-backend
+    expose:
+      - "8888"
+
+  nginx:
+    image: dikshaingole/roulette-nginx
+    container_name: roulette-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend

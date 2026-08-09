@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: roulette-frontend
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: roulette-frontend
+
+  template:
+    metadata:
+      labels:
+        app: roulette-frontend
+
+    spec:
+      containers:
+        - name: roulette-frontend
+          image: dikshaingole/roulette-frontend:latest
+
+          ports:
+            - containerPort: 80
+
+          imagePullPolicy: Always

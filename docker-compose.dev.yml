@@ -1,0 +1,25 @@
+services:
+
+  frontend:
+    build: ./roulette-frontend
+    image: roulette-frontend
+    container_name: roulette-frontend
+    expose:
+      - "80"
+
+  backend:
+    build: ./roulette-backend
+    image: roulette-backend
+    container_name: roulette-backend
+    expose:
+      - "8888"
+
+  nginx:
+    build: ./nginx
+    image: roulette-nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend

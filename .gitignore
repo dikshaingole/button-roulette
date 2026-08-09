@@ -1,0 +1,21 @@
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Terraform crash logs
+crash.log
+crash.*.log
+
+# Terraform lock file
+# Keep this file if you want consistent provider versions
+# .terraform.lock.hcl
+
+# Environment files
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/

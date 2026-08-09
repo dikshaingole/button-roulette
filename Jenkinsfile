@@ -6,6 +6,17 @@ pipeline {
         maven 'Maven-3.9.11'
     }
 
+    // Email sent via Mailtrap Email Testing sandbox, configured under
+    // Manage Jenkins > System > E-mail Notification:
+    //   SMTP server: sandbox.smtp.mailtrap.io
+    //   Port: 2525, Use SMTP Authentication (credentials from Mailtrap inbox > SMTP Settings)
+    // Mailtrap captures all outgoing mail in its sandbox inbox regardless of
+    // the "to" address below, so nothing reaches real inboxes until the SMTP
+    // host is swapped for a production service (e.g. Gmail SMTP).
+    environment {
+        DEVOPS_EMAIL = 'dikshaingole5@gmail.com'
+    }
+
     stages {
 
         stage('Checkout Code') {
@@ -105,6 +116,9 @@ pipeline {
  
         failure {
             echo 'Pipeline failed.'
+            mail to: "${env.DEVOPS_EMAIL}",
+                 subject: "BUILD FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Build #${env.BUILD_NUMBER} for ${env.JOB_NAME} failed.\n\nCheck console output: ${env.BUILD_URL}console"
         }
     }
 }

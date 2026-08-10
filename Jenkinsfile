@@ -165,8 +165,7 @@ pipeline {
                 dir('terraform/infrastructure') {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
                         bat 'aws sts get-caller-identity'
-                        bat 'nslookup E0519FD7A4E014FEB1D4D767C169AD38.gr7.ap-south-1.eks.amazonaws.com'
-                        bat 'curl -v --max-time 15 https://E0519FD7A4E014FEB1D4D767C169AD38.gr7.ap-south-1.eks.amazonaws.com/version'
+                        bat 'aws eks get-token --cluster-name %EKS_CLUSTER_NAME% --region %AWS_REGION%'
                         bat 'terraform init -input=false'
                         bat 'terraform plan -input=false -out=tfplan'
                     }

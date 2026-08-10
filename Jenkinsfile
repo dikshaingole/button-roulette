@@ -7,6 +7,11 @@ pipeline {
             defaultValue: false,
             description: 'One-time setup only: creates the S3 bucket + DynamoDB table that hold Terraform state. Leave unchecked on normal builds — only check this the first time, or if the bucket/table were ever deleted.'
         )
+        booleanParam(
+            name: 'RUN_DESTROY',
+            defaultValue: false,
+            description: 'DANGER: permanently deletes the EKS cluster, VPC, and all AWS infrastructure in terraform/infrastructure. Leave unchecked. Only check this when you intend to tear the environment down, and be ready to type DESTROY to confirm.'
+        )
     }
 
     tools {
@@ -211,6 +216,70 @@ pipeline {
                     bat 'kubectl rollout restart deployment/roulette-frontend'
                     bat 'kubectl rollout status deployment/roulette-backend'
                     bat 'kubectl rollout status deployment/roulette-frontend'
+                }
+            }
+        }
+
+        stage('Remove Kubernetes Resources (pre-destroy)') {
+            when {
+                expression { params.RUN_DESTROY }
+            }
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                    // Deletes the Ingress (and everything else) first so the AWS Load
+                    // Balancer Controller tears down the real ALB itself. Terraform
+                    // doesn't know that ALB exists — it was created by the controller,
+                    // not by a Terraform resource — so skipping this step would leave
+                    // an orphaned, still-billing load balancer behind after destroy.
+                    bat 'kubectl delete -f k8s/ --ignore-not-found=true'
+                }
+            }
+        }
+
+        stage('Terraform Destroy Plan') {
+            when {
+                expression { params.RUN_DESTROY }
+            }
+            steps {
+                dir('terraform/infrastructure') {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'aws sts get-caller-identity'
+                        bat 'terraform init -input=false'
+                        bat 'terraform plan -destroy -input=false -out=destroy.tfplan'
+                    }
+                }
+            }
+        }
+
+        stage('Approve Terraform Destroy') {
+            when {
+                expression { params.RUN_DESTROY }
+            }
+            steps {
+                script {
+                    def confirmation = input(
+                        message: 'Review the destroy plan above. This PERMANENTLY deletes the EKS cluster, VPC, and every resource in terraform/infrastructure. This cannot be undone.',
+                        ok: 'I understand — destroy it',
+                        parameters: [
+                            string(name: 'CONFIRM', defaultValue: '', description: "Type DESTROY (all caps) to confirm.")
+                        ]
+                    )
+                    if (confirmation != 'DESTROY') {
+                        error("Destroy aborted: confirmation text did not match 'DESTROY'.")
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Destroy Apply') {
+            when {
+                expression { params.RUN_DESTROY }
+            }
+            steps {
+                dir('terraform/infrastructure') {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'terraform apply -input=false -auto-approve destroy.tfplan'
+                    }
                 }
             }
         }

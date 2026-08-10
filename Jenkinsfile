@@ -24,6 +24,8 @@ pipeline {
     // host is swapped for a production service (e.g. Gmail SMTP).
     environment {
         DEVOPS_EMAIL = 'dikshaingole5@gmail.com'
+        AWS_REGION = 'ap-south-1'
+        EKS_CLUSTER_NAME = 'button-roulette-cluster'
     }
 
     stages {
@@ -45,6 +47,8 @@ pipeline {
 				bat 'docker version'
 				bat 'docker ps'
 				bat 'terraform version'
+				bat 'kubectl version --client'
+				bat 'aws --version'
 			}
 		}
 
@@ -177,6 +181,32 @@ pipeline {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
                         bat 'terraform apply -input=false -auto-approve tfplan'
                     }
+                }
+            }
+        }
+
+        stage('Configure Kubeconfig') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                    bat 'aws eks update-kubeconfig --region %AWS_REGION% --name %EKS_CLUSTER_NAME%'
+                }
+            }
+        }
+
+        stage('Approve Kubernetes Deployment') {
+            steps {
+                input message: 'Deploy the latest backend/frontend images to the EKS cluster?', ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                    bat 'kubectl apply -f k8s/'
+                    bat 'kubectl rollout restart deployment/roulette-backend'
+                    bat 'kubectl rollout restart deployment/roulette-frontend'
+                    bat 'kubectl rollout status deployment/roulette-backend'
+                    bat 'kubectl rollout status deployment/roulette-frontend'
                 }
             }
         }

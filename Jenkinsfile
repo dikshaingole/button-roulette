@@ -26,6 +26,7 @@ pipeline {
         DEVOPS_EMAIL = 'dikshaingole5@gmail.com'
         AWS_REGION = 'ap-south-1'
         EKS_CLUSTER_NAME = 'button-roulette-cluster'
+        AWS_EC2_METADATA_DISABLED = 'true'
     }
 
     stages {
@@ -129,6 +130,7 @@ pipeline {
             steps {
                 dir('terraform/bootstrap') {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'aws sts get-caller-identity'
                         bat 'terraform init -input=false'
                         bat 'terraform plan -input=false -out=bootstrap.tfplan'
                     }
@@ -162,6 +164,7 @@ pipeline {
             steps {
                 dir('terraform/infrastructure') {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'aws sts get-caller-identity'
                         bat 'terraform init -input=false'
                         bat 'terraform plan -input=false -out=tfplan'
                     }

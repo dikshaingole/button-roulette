@@ -1,6 +1,14 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(
+            name: 'RUN_BOOTSTRAP',
+            defaultValue: false,
+            description: 'One-time setup only: creates the S3 bucket + DynamoDB table that hold Terraform state. Leave unchecked on normal builds — only check this the first time, or if the bucket/table were ever deleted.'
+        )
+    }
+
     tools {
         jdk 'JDK21'
         maven 'Maven-3.9.11'
@@ -107,6 +115,42 @@ pipeline {
         stage('Push Frontend Image') {
             steps {
                 bat 'docker push dikshaingole/roulette-frontend:latest'
+            }
+        }
+
+        stage('Terraform Bootstrap Init & Plan') {
+            when {
+                expression { params.RUN_BOOTSTRAP }
+            }
+            steps {
+                dir('terraform/bootstrap') {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'terraform init -input=false'
+                        bat 'terraform plan -input=false -out=bootstrap.tfplan'
+                    }
+                }
+            }
+        }
+
+        stage('Approve Bootstrap') {
+            when {
+                expression { params.RUN_BOOTSTRAP }
+            }
+            steps {
+                input message: 'Review the bootstrap plan above (creates the S3 state bucket + DynamoDB lock table). Apply?', ok: 'Apply'
+            }
+        }
+
+        stage('Terraform Bootstrap Apply') {
+            when {
+                expression { params.RUN_BOOTSTRAP }
+            }
+            steps {
+                dir('terraform/bootstrap') {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'terraform apply -input=false -auto-approve bootstrap.tfplan'
+                    }
+                }
             }
         }
 

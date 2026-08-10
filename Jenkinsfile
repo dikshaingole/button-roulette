@@ -4,6 +4,7 @@ pipeline {
     tools {
         jdk 'JDK21'
         maven 'Maven-3.9.11'
+        terraform 'terraform-tool'
     }
 
     // Email sent via Mailtrap Email Testing sandbox, configured under
@@ -35,7 +36,8 @@ pipeline {
 				bat 'docker --version'
 				bat 'docker version'
 				bat 'docker ps'
-			} 
+				bat 'terraform version'
+			}
 		}
 
         stage('Build Applications') {
@@ -105,6 +107,33 @@ pipeline {
         stage('Push Frontend Image') {
             steps {
                 bat 'docker push dikshaingole/roulette-frontend:latest'
+            }
+        }
+
+        stage('Terraform Init & Plan') {
+            steps {
+                dir('terraform/infrastructure') {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'terraform init -input=false'
+                        bat 'terraform plan -input=false -out=tfplan'
+                    }
+                }
+            }
+        }
+
+        stage('Approve Infrastructure Changes') {
+            steps {
+                input message: 'Review the Terraform plan above. Apply these infrastructure changes to AWS?', ok: 'Apply'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform/infrastructure') {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-terraform-creds']]) {
+                        bat 'terraform apply -input=false -auto-approve tfplan'
+                    }
+                }
             }
         }
     }
